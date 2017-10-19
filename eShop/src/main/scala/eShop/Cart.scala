@@ -4,9 +4,9 @@ import akka.actor.{Actor}
 import akka.actor.Timers
 
 import scala.concurrent.duration._
+import eShop._
 
 class Cart extends Actor with Timers {
-  import eShop._
 
   var itemCounter = BigInt(0)
   var items = Set[String]()
@@ -42,15 +42,11 @@ class Cart extends Actor with Timers {
       items += item
       print("\nCart state: ")
       items.foreach(i => print(i + " "))
-    case CheckoutStartedCart(checkout) =>
-      if(itemCounter>0){
-        checkout ! CheckoutStarted()
-        timers.startSingleTimer(CheckoutTimerKey, CheckoutTimeout(), 10.seconds)
-        timers.cancel(CartTimerKey)
-        context.become(inCheckout)
-      } else {
-        println("Error occurred. Processing checkout request but cart is empty")
-      }
+    case CheckoutStartedCart(checkout) if itemCounter > 0 =>
+      checkout ! CheckoutStarted()
+      timers.startSingleTimer(CheckoutTimerKey, CheckoutTimeout(), 10.seconds)
+      timers.cancel(CartTimerKey)
+      context.become(inCheckout)
     case CartTimeout() =>
       itemCounter = 0
       items = items.empty
