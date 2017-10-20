@@ -1,6 +1,6 @@
 package eShopFSM
 
-import akka.actor.{Actor, FSM}
+import akka.actor.{Actor, FSM, Props}
 
 class CartFSM extends Actor with FSM[State, Data] {
 
@@ -29,10 +29,10 @@ class CartFSM extends Actor with FSM[State, Data] {
       println("Last item removed")
       goto(Empty)
     }
-    case Event(CheckoutStartedCart(checkoutActor), Cart(items)) =>
-    {
+    case Event(CheckoutStarted(), Cart(items)) => {
       println("\nInitializing checkout (CartFSM)")
-      checkoutActor ! CheckoutStarted()
+      val checkoutActor = context.actorOf(Props[CheckoutFSM], "checkoutActor")
+      sender ! checkoutActor
       goto(InCheckout) using Cart(items)
     }
     case Event(CartTimeout(), Uninitialized) => {
@@ -42,8 +42,9 @@ class CartFSM extends Actor with FSM[State, Data] {
   }
 
   when(InCheckout) {
-    case Event(CheckoutClosed(), Cart(_)) => {
-      println("Checkout closed successfully. Congratulations!")
+    case Event(CheckoutClosed(), Cart(items)) => {
+      print("Checkout closed successfully. You purchased the following items: ")
+      items.foreach(i => print(i + " "))
       goto(Empty)
     }
     case Event(CheckoutCancelled(), Cart(items)) => {

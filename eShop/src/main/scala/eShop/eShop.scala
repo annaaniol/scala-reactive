@@ -1,15 +1,10 @@
 package eShop
 
-import akka.actor.ActorRef
-
 object eShop {
   case class ItemAdded(item: String) {
 
   }
   case class ItemRemoved(item: String) {
-
-  }
-  case class CheckoutStartedCart(remoteCheckout: ActorRef) {
 
   }
   case class CheckoutStarted() {

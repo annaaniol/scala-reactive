@@ -2,23 +2,21 @@ package eShopFSM
 
 import akka.actor.ActorRef
 
-sealed trait eShopCartMessage
-sealed trait eShopCheckoutMessage
+sealed trait eShopMessage
 
-case class ItemAdded(item: String) extends eShopCartMessage
-case class ItemRemoved(item: String) extends eShopCartMessage
-case class CheckoutStartedCart(remoteCheckout: ActorRef) extends eShopCartMessage
-case class CartTimeout() extends eShopCartMessage
+case class ItemAdded(item: String) extends eShopMessage
+case class ItemRemoved(item: String) extends eShopMessage
+case class CartTimeout() extends eShopMessage
+case class PassCheckoutActor(checkoutActor: ActorRef)
 
-case class CheckoutStarted() extends eShopCheckoutMessage
-case class CheckoutClosed() extends eShopCheckoutMessage
-case class CheckoutCancelled() extends eShopCheckoutMessage
-case class CheckoutTimeout() extends eShopCheckoutMessage
-case class DeliveryMethodSelected() extends eShopCheckoutMessage
-case class PaymentSelected() extends eShopCheckoutMessage
-case class PaymentReceived() extends eShopCheckoutMessage
-case class PaymentTimeout() extends eShopCheckoutMessage
-
+case class CheckoutStarted() extends eShopMessage
+case class CheckoutClosed() extends eShopMessage
+case class CheckoutCancelled() extends eShopMessage
+case class CheckoutTimeout() extends eShopMessage
+case class DeliveryMethodSelected() extends eShopMessage
+case class PaymentSelected() extends eShopMessage
+case class PaymentReceived() extends eShopMessage
+case class PaymentTimeout() extends eShopMessage
 
 
 sealed trait State

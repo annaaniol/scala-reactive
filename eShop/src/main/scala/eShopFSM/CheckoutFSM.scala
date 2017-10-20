@@ -4,14 +4,7 @@ import akka.actor.{Actor, FSM}
 
 class CheckoutFSM extends Actor with FSM[State, Data] {
 
-  startWith(Awaiting, Uninitialized)
-
-  when(Awaiting) {
-    case Event(CheckoutStarted(), _) => {
-      println("Checkout started (CheckoutFSM)")
-      goto(SelectingDelivery) using CartActor(sender)
-    }
-  }
+  startWith(SelectingDelivery, CartActor(context.parent))
 
   when(SelectingDelivery) {
     case Event(DeliveryMethodSelected(), CartActor(actorRef)) => {
@@ -26,7 +19,7 @@ class CheckoutFSM extends Actor with FSM[State, Data] {
     case Event(CheckoutTimeout(), CartActor(actorRef)) => {
       println("Timeout in SelectingDelivery")
       actorRef ! CheckoutCancelled()
-      goto(Awaiting)
+      stop()
     }
   }
 
@@ -38,29 +31,30 @@ class CheckoutFSM extends Actor with FSM[State, Data] {
     case Event(CheckoutTimeout(), CartActor(actorRef)) => {
       println("Timeout in SelectingPaymentMethod")
       actorRef ! CheckoutCancelled()
-      goto(Awaiting)
+      stop()
     }
     case Event(CheckoutCancelled(), CartActor(actorRef)) => {
       println("Checkout cancelled on SelectingPaymentMethod")
       actorRef ! CheckoutCancelled()
-      goto(Awaiting)
+      stop()
     }
   }
 
   when(ProcessingPayment) {
     case Event(PaymentReceived(), CartActor(actorRef)) => {
+      println("Payment received")
       actorRef ! CheckoutClosed()
-      goto(Awaiting)
+      stop()
     }
     case Event(PaymentTimeout(), CartActor(actorRef)) => {
       println("Timeout on ProcessingPayment")
       actorRef ! CheckoutCancelled()
-      goto(Awaiting)
+      stop()
     }
     case Event(CheckoutCancelled(), CartActor(actorRef)) => {
       println("Checkout cancelled on ProcessingPayment")
       actorRef ! CheckoutCancelled()
-      goto(Awaiting)
+      stop()
     }
   }
 }

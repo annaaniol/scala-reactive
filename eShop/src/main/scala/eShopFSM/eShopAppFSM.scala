@@ -1,34 +1,38 @@
 package eShopFSM
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.pattern.ask
+import akka.util.Timeout
+
+import scala.concurrent.duration._
+import scala.concurrent.Await
 
 object eShopAppFSM extends App {
   val system = ActorSystem("eShopApp")
-
   val cart = system.actorOf(Props[CartFSM], "cartFSM")
-  val checkout = system.actorOf(Props[CheckoutFSM], "checkoutFSM")
+  implicit val waitForCheckoutRefTimeout = Timeout(100 milliseconds)
+  var checkout :ActorRef = null
 
   cart ! ItemAdded("chomik")
   cart ! ItemAdded("papuga")
   cart ! ItemRemoved("chomik")
   cart ! ItemAdded("kanarek")
   cart ! ItemAdded("ryba")
-  cart ! CheckoutStartedCart(checkout)
+
+  checkout = Await.result(cart ? CheckoutStarted(), waitForCheckoutRefTimeout.duration).asInstanceOf[ActorRef]
 
   Thread.sleep(100)
 
   checkout ! DeliveryMethodSelected()
   checkout ! PaymentSelected()
-  checkout ! PaymentTimeout()
+  checkout ! CheckoutCancelled()
 
   Thread.sleep(100)
 
-  cart ! ItemAdded("glonojad")
-  cart ! CheckoutStartedCart(checkout)
-
-  Thread.sleep(500)
+  checkout = Await.result({cart ? CheckoutStarted()}, waitForCheckoutRefTimeout.duration).asInstanceOf[ActorRef]
 
   checkout ! DeliveryMethodSelected()
-  checkout ! CheckoutCancelled()
+  checkout ! PaymentSelected()
+  checkout ! PaymentReceived()
 
 }
