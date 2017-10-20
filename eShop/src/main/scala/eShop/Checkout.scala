@@ -3,9 +3,9 @@ package eShop
 import akka.actor.{Actor, Timers, ActorRef}
 
 import scala.concurrent.duration._
+import eShop._
 
 class Checkout extends Actor with Timers {
-  import eShop._
 
   def receive = awaiting
 
@@ -17,8 +17,8 @@ class Checkout extends Actor with Timers {
       println("Checkout started")
       timers.startSingleTimer(CheckoutTimerKey, CheckoutTimeout(), 5.seconds)
       context.become(selectingDelivery)
-    case _ =>
-      println("Failed in awaiting")
+    case msg =>
+      println("Failed in awaiting. Unhandled message: " + msg)
   }
 
   def selectingDelivery: Receive = {
@@ -32,10 +32,10 @@ class Checkout extends Actor with Timers {
       context.become(selectingPaymentMethod)
     case CheckoutTimeout() =>
       println("Timeout in selectingDelivery! Checkout cancelled")
-      remoteCart ! CheckoutTimeout()
+      remoteCart ! CheckoutCancelled()
       context.become(awaiting)
-    case _ =>
-      println("Failed in selectingDelivery")
+    case msg =>
+      println("Failed in selectingDelivery. Unhandled message: " + msg)
       context.become(awaiting)
   }
 
@@ -45,12 +45,17 @@ class Checkout extends Actor with Timers {
       timers.startSingleTimer(PaymentTimerKey, PaymentTimeout(), 5.seconds)
       println("Payment method selected")
       context.become(processingPayment)
-    case PaymentTimeout() =>
-      println("Timeout in selectingPaymentMethod! Checkout cancelled")
-      remoteCart ! CheckoutTimeout()
+    case CheckoutCancelled() =>
+      println("Checkout cancelled on selectingPaymentMethod")
+      timers.cancel(CheckoutTimerKey)
+      remoteCart ! CheckoutCancelled()
       context.become(awaiting)
-    case _ =>
-      println("Failed in selectingPaymentMethod")
+    case PaymentTimeout() =>
+      println("Timeout in selectingPaymentMethod")
+      remoteCart ! CheckoutCancelled()
+      context.become(awaiting)
+    case msg =>
+      println("Failed in selectingPaymentMethod. Unhandled message: " + msg)
       context.become(awaiting)
   }
 
@@ -61,11 +66,11 @@ class Checkout extends Actor with Timers {
       remoteCart ! CheckoutClosed()
       context.become(awaiting)
     case PaymentTimeout() =>
-      println("Timeout in processingPayment! Checkout cancelled")
-      remoteCart ! CheckoutTimeout()
+      println("Timeout in processingPayment")
+      remoteCart ! CheckoutCancelled()
       context.become(awaiting)
-    case _ =>
-      println("Failed in processingPayment")
+    case msg =>
+      println("Failed in processingPayment. Unhandled message: " + msg)
       context.become(awaiting)
   }
 

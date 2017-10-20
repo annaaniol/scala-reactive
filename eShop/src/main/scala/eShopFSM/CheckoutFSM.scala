@@ -19,7 +19,7 @@ class CheckoutFSM extends Actor with FSM[State, Data] {
       goto(SelectingPaymentMethod) using CartActor(actorRef)
     }
     case Event(CheckoutCancelled(), CartActor(actorRef)) => {
-      println("Checkout cancelled")
+      println("Checkout cancelled on SelectingDelivery")
       actorRef ! CheckoutCancelled()
       stay using CartActor(actorRef)
     }

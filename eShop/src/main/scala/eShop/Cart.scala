@@ -1,9 +1,10 @@
 package eShop
 
-import akka.actor.{Actor}
+import akka.actor.Actor
 import akka.actor.Timers
 
 import scala.concurrent.duration._
+import scala.collection.mutable.Set
 import eShop._
 
 class Cart extends Actor with Timers {
@@ -18,11 +19,10 @@ class Cart extends Actor with Timers {
       timers.startSingleTimer(CartTimerKey, CartTimeout(), 5.seconds)
       itemCounter += 1
       items += item
-      print("\nCart state: ")
-      items.foreach(i => print(i + " "))
+      println("Cart state: " + item)
       context.become(notEmpty)
-    case _ =>
-      println("Failed in empty state")
+    case msg =>
+      println("Failed in empty. Unhandled message: " + msg)
   }
 
   def notEmpty: Receive = {
@@ -44,37 +44,29 @@ class Cart extends Actor with Timers {
       items.foreach(i => print(i + " "))
     case CheckoutStartedCart(checkout) if itemCounter > 0 =>
       checkout ! CheckoutStarted()
-      timers.startSingleTimer(CheckoutTimerKey, CheckoutTimeout(), 10.seconds)
       timers.cancel(CartTimerKey)
       context.become(inCheckout)
     case CartTimeout() =>
-      itemCounter = 0
-      items = items.empty
-      println("Timeout in notEmpty! Cart is empty")
+      println("Cart Timeout in notEmpty. You are back in empty state")
+      items.clear()
       context.become(empty)
-    case _ =>
-      println("Failed in notEmpty state")
+    case msg =>
+      println("Failed in notEmpty. Unhandled message: " + msg)
   }
 
   def inCheckout: Receive = {
     case CheckoutClosed() =>
-      timers.cancel(CheckoutTimerKey)
       println("Checkout closed successfully. Congratulations!")
       itemCounter = 0
       items = items.empty
       context.become(empty)
     case CheckoutCancelled() =>
-      timers.cancel(CheckoutTimerKey)
-      timers.startSingleTimer(CartTimerKey, CartTimeout(), 5.seconds)
-      println("Checkout cancelled")
-      context.become(notEmpty)
-    case CheckoutTimeout() =>
-      println("Timeout in inCheckout! Checkout canceled")
-      timers.cancel(CheckoutTimerKey)
+      print("\nCheckout cancelled. You are back in a cart with: ")
+      items.foreach(i => print(i + " "))
       timers.startSingleTimer(CartTimerKey, CartTimeout(), 5.seconds)
       context.become(notEmpty)
-    case _ =>
-      println("Failed in inCheckout state")
+    case msg =>
+      println("Failed in inCheckout. Unhandled message: " + msg)
   }
 
 }
