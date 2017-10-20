@@ -15,4 +15,20 @@ object eShopAppFSM extends App {
   cart ! ItemAdded("ryba")
   cart ! CheckoutStartedCart(checkout)
 
+  Thread.sleep(100)
+
+  checkout ! DeliveryMethodSelected()
+  checkout ! PaymentSelected()
+  checkout ! PaymentTimeout()
+
+  Thread.sleep(100)
+
+  cart ! ItemAdded("glonojad")
+  cart ! CheckoutStartedCart(checkout)
+
+  Thread.sleep(500)
+
+  checkout ! DeliveryMethodSelected()
+  checkout ! CheckoutCancelled()
+
 }

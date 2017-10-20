@@ -26,7 +26,7 @@ class Checkout extends Actor with Timers {
       println("Checkout cancelled")
       timers.cancel(CheckoutTimerKey)
       remoteCart ! CheckoutCancelled()
-      context.stop(self)
+      context.become(awaiting)
     case DeliverySelected() =>
       println("Delivery type selected")
       context.become(selectingPaymentMethod)

@@ -25,14 +25,14 @@ class CartFSM extends Actor with FSM[State, Data] {
       items.foreach(i => if(!i.equals(item))print(i + " "))
       stay using Cart(items - item)
     }
-    case Event(ItemRemoved(item), Cart(items)) if items.size == 1 => {
+    case Event(ItemRemoved(_), Cart(items)) if items.size == 1 => {
       println("Last item removed")
       goto(Empty)
     }
     case Event(CheckoutStartedCart(checkoutActor), Cart(items)) =>
     {
-      println("\nCheckout started")
-      checkoutActor ! CheckoutStarted(items)
+      println("\nInitializing checkout (CartFSM)")
+      checkoutActor ! CheckoutStarted()
       goto(InCheckout) using Cart(items)
     }
     case Event(CartTimeout(), Uninitialized) => {
@@ -42,12 +42,13 @@ class CartFSM extends Actor with FSM[State, Data] {
   }
 
   when(InCheckout) {
-    case Event(CheckoutClosed(), Cart(items)) => {
+    case Event(CheckoutClosed(), Cart(_)) => {
       println("Checkout closed successfully. Congratulations!")
       goto(Empty)
     }
     case Event(CheckoutCancelled(), Cart(items)) => {
-      println("Checkout canceled")
+      println("Checkout cancelled")
+      items.foreach(i => print(i + " "))
       goto(NotEmpty) using Cart(items)
     }
   }
