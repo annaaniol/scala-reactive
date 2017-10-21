@@ -59,6 +59,11 @@ class Checkout extends Actor with Timers {
       println("Timeout in processingPayment")
       remoteCart ! CheckoutCancelled()
       context.stop(self)
+    case CheckoutCancelled() =>
+      println("Checkout cancelled on processingPayment")
+      timers.cancelAll()
+      remoteCart ! CheckoutCancelled()
+      context.stop(self)
     case msg =>
       println("Failed in processingPayment. Unhandled message: " + msg)
   }

@@ -7,7 +7,6 @@ import akka.pattern.ask
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import eShop._
-import eShopFSM.CheckoutStarted
 
 object eShopApp extends App {
   val system = ActorSystem("eShopApp")

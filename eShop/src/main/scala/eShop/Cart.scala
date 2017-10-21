@@ -8,7 +8,6 @@ import eShop._
 
 class Cart extends Actor with Timers {
 
-  var itemCounter = BigInt(0)
   var items = Set[String]()
 
   def receive = empty
@@ -16,7 +15,6 @@ class Cart extends Actor with Timers {
   def empty: Receive = {
     case eShop.ItemAdded(item) =>
       timers.startSingleTimer(CartTimerKey, CartTimeout(), 5.seconds)
-      itemCounter += 1
       items += item
       printCart()
       context.become(notEmpty)
@@ -25,21 +23,19 @@ class Cart extends Actor with Timers {
   }
 
   def notEmpty: Receive = {
-    case ItemRemoved(item) =>
+    case ItemRemoved(item) if items.size > 1 && items.contains(item) =>
       timers.startSingleTimer(CartTimerKey, CartTimeout(), 5.seconds)
-      itemCounter -= 1
       items -= item
       printCart()
-      if(itemCounter==0)
-      {
-        context.become(empty)
-      }
+    case ItemRemoved(item) if items.size == 1 && items.contains(item) =>
+      timers.startSingleTimer(CartTimerKey, CartTimeout(), 5.seconds)
+      println("Last item removed")
+      context.become(empty)
     case ItemAdded(item) =>
       timers.startSingleTimer(CartTimerKey, CartTimeout(), 5.seconds)
-      itemCounter += 1
       items += item
       printCart()
-    case CheckoutStarted() if itemCounter > 0 =>
+    case CheckoutStarted() if items.nonEmpty =>
       val checkoutActor = context.actorOf(Props[Checkout], "checkoutActor")
       sender ! checkoutActor
       timers.cancel(CartTimerKey)
@@ -55,11 +51,10 @@ class Cart extends Actor with Timers {
   def inCheckout: Receive = {
     case CheckoutClosed() =>
       println("Checkout closed successfully. Congratulations!")
-      itemCounter = 0
       items = items.empty
       context.become(empty)
     case CheckoutCancelled() =>
-      print("Checkout cancelled. ")
+      println("Checkout cancelled.")
       printCart()
       timers.startSingleTimer(CartTimerKey, CartTimeout(), 5.seconds)
       context.become(notEmpty)

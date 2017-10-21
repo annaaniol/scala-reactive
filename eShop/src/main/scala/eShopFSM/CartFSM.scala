@@ -8,29 +8,26 @@ class CartFSM extends Actor with FSM[State, Data] {
 
   when(Empty) {
     case Event(ItemAdded(item), Uninitialized) => {
-      print("Cart state (added to empty): " + item)
+      println("Cart state: " + item)
       goto(NotEmpty) using Cart(Set(item))
     }
   }
 
   when(NotEmpty) {
     case Event(ItemAdded(item), Cart(items)) => {
-      print("\nCart state (added to notEmpty): ")
-      items.foreach(i => print(i + " "))
-      print(item)
+      printCart(items + item)
       stay using Cart(items + item)
     }
-    case Event(ItemRemoved(item), Cart(items)) if items.size > 1 => {
-      print("\nCart state (removed from notEmpty): ")
-      items.foreach(i => if(!i.equals(item))print(i + " "))
+    case Event(ItemRemoved(item), Cart(items)) if items.size > 1 && items.contains(item) => {
+      printCart(items - item)
       stay using Cart(items - item)
     }
-    case Event(ItemRemoved(_), Cart(items)) if items.size == 1 => {
+    case Event(ItemRemoved(item), Cart(items)) if items.size == 1 && items.contains(item) => {
       println("Last item removed")
       goto(Empty)
     }
     case Event(CheckoutStarted(), Cart(items)) => {
-      println("\nInitializing checkout (CartFSM)")
+      println("Initializing checkout")
       val checkoutActor = context.actorOf(Props[CheckoutFSM], "checkoutActor")
       sender ! checkoutActor
       goto(InCheckout) using Cart(items)
@@ -49,8 +46,14 @@ class CartFSM extends Actor with FSM[State, Data] {
     }
     case Event(CheckoutCancelled(), Cart(items)) => {
       println("Checkout cancelled")
-      items.foreach(i => print(i + " "))
+      printCart(items)
       goto(NotEmpty) using Cart(items)
     }
+  }
+
+  def printCart(items: Set[String]) = {
+    print("Cart state: ")
+    items.foreach(i => print(i + " "))
+    println()
   }
 }

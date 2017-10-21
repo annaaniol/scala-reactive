@@ -1,10 +1,14 @@
 package eShopFSM
 
-import akka.actor.{Actor, FSM}
+import akka.actor.{Actor, FSM, Timers}
 
-class CheckoutFSM extends Actor with FSM[State, Data] {
+import scala.concurrent.duration._
+
+class CheckoutFSM extends Actor with FSM[State, Data] with Timers {
 
   startWith(SelectingDelivery, CartActor(context.parent))
+
+  timers.startSingleTimer(CheckoutTimerKey, CheckoutTimeout(), 5.seconds)
 
   when(SelectingDelivery) {
     case Event(DeliveryMethodSelected(), CartActor(actorRef)) => {
@@ -14,7 +18,7 @@ class CheckoutFSM extends Actor with FSM[State, Data] {
     case Event(CheckoutCancelled(), CartActor(actorRef)) => {
       println("Checkout cancelled on SelectingDelivery")
       actorRef ! CheckoutCancelled()
-      stay using CartActor(actorRef)
+      stop()
     }
     case Event(CheckoutTimeout(), CartActor(actorRef)) => {
       println("Timeout in SelectingDelivery")
@@ -25,6 +29,8 @@ class CheckoutFSM extends Actor with FSM[State, Data] {
 
   when(SelectingPaymentMethod) {
     case Event(PaymentSelected(), CartActor(actorRef)) => {
+      timers.cancel(CheckoutTimerKey)
+      timers.startSingleTimer(PaymentTimerKey, PaymentTimeout(), 5.seconds)
       println("Payment method selected")
       goto(ProcessingPayment) using CartActor(actorRef)
     }
@@ -42,6 +48,7 @@ class CheckoutFSM extends Actor with FSM[State, Data] {
 
   when(ProcessingPayment) {
     case Event(PaymentReceived(), CartActor(actorRef)) => {
+      timers.cancel(PaymentTimerKey)
       println("Payment received")
       actorRef ! CheckoutClosed()
       stop()

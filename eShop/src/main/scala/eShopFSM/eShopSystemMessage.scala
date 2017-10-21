@@ -35,3 +35,7 @@ case object Uninitialized extends Data
 case class Cart(items: Set[String]) extends Data
 case class CartWithActor(items: Set[String], cartActor: ActorRef) extends Data
 case class CartActor(actorRef: ActorRef) extends Data
+
+case object CheckoutTimerKey
+case object PaymentTimerKey
+case object CartTimerKey
