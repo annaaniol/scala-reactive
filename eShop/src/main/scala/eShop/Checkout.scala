@@ -1,11 +1,11 @@
 package eShop
 
-import akka.actor.{Actor, Timers, ActorRef}
+import akka.actor.{Actor, ActorRef, Props, Timers}
 
 import scala.concurrent.duration._
 import eShop._
 
-class Checkout extends Actor with Timers {
+class Checkout(remoteCustomer: ActorRef) extends Actor with Timers {
 
   def receive = selectingDelivery
 
@@ -34,6 +34,8 @@ class Checkout extends Actor with Timers {
     case PaymentSelected() =>
       timers.cancel(CheckoutTimerKey)
       timers.startSingleTimer(PaymentTimerKey, PaymentTimeout(), 5.seconds)
+      val paymentServiceActor = context.actorOf(Props(new PaymentService(remoteCustomer)), "paymentServiceActor")
+      remoteCustomer ! PaymentServiceStarted(paymentServiceActor)
       println("Payment method selected")
       context.become(processingPayment)
     case CheckoutCancelled() =>
