@@ -39,7 +39,7 @@ class Cart extends Actor with Timers {
       items += item
       printCart()
     case StartCheckout() if items.nonEmpty =>
-      val checkoutActor = context.actorOf(Props(new Checkout(remoteCustomer)), "checkoutActor")
+      val checkoutActor = context.actorOf(Props[Checkout], "checkoutActor")
       remoteCustomer ! CheckoutStarted(checkoutActor)
       timers.cancel(CartTimerKey)
       context.become(inCheckout)

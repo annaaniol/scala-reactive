@@ -16,7 +16,6 @@ class CartTestAsync extends TestKit(ActorSystem("CartTestAsync"))
 
     "start checkout when is not empty" in {
       val cart = system.actorOf(Props[Cart])
-
       cart ! AddItem("itemA")
       cart ! StartCheckout()
       expectMsgType[CheckoutStarted]
@@ -24,16 +23,14 @@ class CartTestAsync extends TestKit(ActorSystem("CartTestAsync"))
 
     "not start checkout when is empty" in {
       val cart = system.actorOf(Props[Cart])
-
       cart ! AddItem("itemA")
       cart ! ItemRemoved("itemA")
       cart ! StartCheckout()
       expectNoMsg()
     }
 
-    "send 'Empty notification' after successful closing checkout" in {
+    "send 'Empty notification' after closing checkout successfully" in {
       val cart = system.actorOf(Props[Cart])
-
       cart ! AddItem("itemA")
       cart ! StartCheckout()
       expectMsgType[CheckoutStarted]

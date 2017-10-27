@@ -15,13 +15,18 @@ class CartTestSync extends TestKit(ActorSystem("CartTestSync"))
 
   "A Cart" must {
 
-    "increment the size of items set when item added" in {
+    "start with no items" in {
+      val counter = TestActorRef[Cart]
+      assert (counter.underlyingActor.items.isEmpty)
+    }
+
+    "increment the size of items set when item is added" in {
       val counter = TestActorRef[Cart]
       counter ! AddItem("testItem")
       assert (counter.underlyingActor.items.size == 1)
     }
 
-    "adjust the size of items set when items added and removed" in {
+    "adjust the size of items set when items are added and removed" in {
       val counter = TestActorRef[Cart]
       counter ! AddItem("itemA")
       counter ! AddItem("itemB")
