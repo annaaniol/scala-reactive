@@ -1,13 +1,11 @@
 package eShop
 
+import akka.actor.ActorRef
+
 object eShop {
-  case class ItemAdded(item: String) {
 
-  }
+  // eShop v1
   case class ItemRemoved(item: String) {
-
-  }
-  case class CheckoutStarted() {
 
   }
   case class CheckoutClosed() {
@@ -35,6 +33,39 @@ object eShop {
 
   }
   case class PaymentTimeout() {
+
+  }
+
+  // eShop v2
+  case class DoPayment() {
+
+  }
+
+  case class PaymentConfirmed() {
+
+  }
+
+  case class CartEmpty() {
+
+  }
+
+  case class CheckoutStarted(checkout: ActorRef) {
+
+  }
+
+  case class StartCheckout() {
+
+  }
+
+  case class AddItem(item: String) {
+
+  }
+
+  case class PaymentServiceStarted(paymentService: ActorRef) {
+
+  }
+
+  case class Start() {
 
   }
 
