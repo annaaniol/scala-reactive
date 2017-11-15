@@ -4,6 +4,11 @@ import akka.actor.ActorRef
 
 object eShop {
 
+  // eShop state management
+  case class ShowState() {
+
+  }
+
   // eShop v1
   case class ItemRemoved(item: String) {
 

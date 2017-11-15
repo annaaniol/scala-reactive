@@ -1,75 +1,20 @@
 package eShop
 
-import akka.actor.{Actor, ActorRef, Props, Timers}
+case class ItemToAdd(item: Item)
+case class ItemToRemove(item: Item)
+case class RemoveAll()
 
-import scala.concurrent.duration._
-import scala.collection.mutable.Set
-import eShop._
+case class Item(name: String)
 
-class Cart extends Actor with Timers {
+case class Cart(state: List[Item]) {
+  def add(item: Item): Cart = copy(item :: state)
+  def remove(item: Item): Cart = copy(state.filter(_ != item))
+  def removeAll(): Cart = copy(List.empty)
+  def print(): String = state.toString()
+  def size(): Int = state.length
+  override def toString: String = state.toString()
+}
 
-  var remoteCustomer :ActorRef = null
-
-  var items = Set[String]()
-
-  def receive = empty
-
-  def empty: Receive = {
-    case AddItem(item) =>
-      timers.startSingleTimer(CartTimerKey, CartTimeout(), 5.seconds)
-      items += item
-      remoteCustomer = sender
-      printCart()
-      context.become(notEmpty)
-    case msg =>
-      println("Failed in empty. Unhandled message: " + msg)
-  }
-
-  def notEmpty: Receive = {
-    case ItemRemoved(item) if items.size > 1 && items.contains(item) =>
-      timers.startSingleTimer(CartTimerKey, CartTimeout(), 5.seconds)
-      items -= item
-      printCart()
-    case ItemRemoved(item) if items.size == 1 && items.contains(item) =>
-      timers.startSingleTimer(CartTimerKey, CartTimeout(), 5.seconds)
-      println("Last item removed")
-      context.become(empty)
-    case AddItem(item) =>
-      timers.startSingleTimer(CartTimerKey, CartTimeout(), 5.seconds)
-      items += item
-      printCart()
-    case StartCheckout() if items.nonEmpty =>
-      val checkoutActor = context.actorOf(Props[Checkout], "checkoutActor")
-      remoteCustomer ! CheckoutStarted(checkoutActor)
-      timers.cancel(CartTimerKey)
-      context.become(inCheckout)
-    case CartTimeout() =>
-      println("Cart Timeout in notEmpty. You are back in empty state")
-      items.clear()
-      remoteCustomer ! CartEmpty()
-      context.become(empty)
-    case msg =>
-      println("Failed in notEmpty. Unhandled message: " + msg)
-  }
-
-  def inCheckout: Receive = {
-    case CheckoutClosed() =>
-      println("Checkout closed successfully. Congratulations!")
-      remoteCustomer ! CartEmpty()
-      items = items.empty
-      context.become(empty)
-    case CheckoutCancelled() =>
-      println("Checkout cancelled")
-      printCart()
-      timers.startSingleTimer(CartTimerKey, CartTimeout(), 5.seconds)
-      context.become(notEmpty)
-    case msg =>
-      println("Failed in inCheckout. Unhandled message: " + msg)
-  }
-
-  def printCart() = {
-    print("Cart state: ")
-    items.foreach(i => print(i + " "))
-    println()
-  }
+object Cart {
+  val empty = Cart(List.empty)
 }

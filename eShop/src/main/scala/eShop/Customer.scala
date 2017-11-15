@@ -11,7 +11,7 @@ class Customer extends Actor with Timers {
 
   def receive = {
     case Start() =>
-      cartActor = context.actorOf(Props[Cart], "cartActor")
+      cartActor = context.actorOf(Props[CartOld], "cartActor")
     case CartEmpty() =>
       println("Customer: Cart is empty")
     case CheckoutStarted(checkout) =>
