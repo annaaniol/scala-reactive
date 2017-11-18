@@ -66,6 +66,7 @@ class CartTestAsync extends TestKit(ActorSystem("CartTestAsync"))
       cart2 ! ItemToRemove(item1)
       cart2 ! ItemToAdd(item1)
 
+      // In 5 seconds it exceeds defined time limit
       within(6 seconds) {
         expectMsg(CartEmpty())
       }

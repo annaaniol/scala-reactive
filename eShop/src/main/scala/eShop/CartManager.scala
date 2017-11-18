@@ -12,8 +12,9 @@ class CartManager(id: String) extends PersistentActor
   with Timers with ActorLogging {
 
   override def persistenceId = id
+  var checkoutPersistenceId = "checkout-id-01"
 
-  var remoteCustomer :ActorRef = null
+  var remoteCustomer :ActorRef = _
 
   var cartState = Cart(List())
 
@@ -38,7 +39,7 @@ class CartManager(id: String) extends PersistentActor
   def numItems : Int = cartState.size
 
   def printCart() = {
-    log.info("Cart size: " + numItems + "\n Items in cart: " + cartState.print())
+    log.info("Cart size: " + numItems + " Items in cart: " + cartState.print())
   }
 
   def receiveCommand : Receive = LoggingReceive {
@@ -56,11 +57,11 @@ class CartManager(id: String) extends PersistentActor
       cartState = cartState.removeAll()
       printCart()
     case StartCheckout() if cartState.size > 0 =>
-      val checkoutActor = context.actorOf(Props[Checkout], "checkoutActor")
+      val checkoutActor = context.actorOf(Checkout.props(checkoutPersistenceId), "checkoutActor")
       remoteCustomer ! CheckoutStarted(checkoutActor)
       timers.cancel(CartTimerKey)
     case StartCheckout() if cartState.size <= 0 =>
-      println("Received StartCheckout message but the cart is empty!")
+      log.info("Received StartCheckout message but the cart is empty!")
     case CartTimeout() =>
       updateStateAfterRemovingAll()
       remoteCustomer ! CartEmpty()
@@ -69,7 +70,7 @@ class CartManager(id: String) extends PersistentActor
     case CheckoutClosed() =>
       updateStateAfterRemovingAll()
       remoteCustomer ! CartEmpty()
-      println("Checkout closed successfully. Congratulations!")
+      log.info("Checkout closed successfully. Congratulations!")
       printCart()
     case CheckoutCancelled() =>
       log.info("Checkout cancelled")
@@ -77,14 +78,15 @@ class CartManager(id: String) extends PersistentActor
       printCart()
     case ShowState() =>
       sender ! numItems
-    case SaveSnapshotSuccess =>
+    case SaveSnapshotSuccess(_) =>
       log.info("Snapshot success")
     case msg =>
       log.info("Unexpected message: " + msg)
   }
 
   val receiveRecover: Receive = {
-    case SnapshotOffer(_, snapshot: Cart) => cartState = snapshot
+    case SnapshotOffer(_, snapshot: Cart) =>
+      cartState = snapshot
   }
 }
 

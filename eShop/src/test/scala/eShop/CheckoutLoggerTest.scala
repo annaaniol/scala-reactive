@@ -17,7 +17,8 @@ class CheckoutLoggerTest extends TestKit(ActorSystem("CheckoutLoggerTest", Confi
   "A Checkout" should {
 
     "log all of the steps when checkout path successful" in {
-      val checkout = system.actorOf(Props[Checkout])
+      val checkoutTestId = "checkout-logger-id-01"
+      val checkout = system.actorOf(Checkout.props(checkoutTestId))
       EventFilter.info(message="Delivery type selected", occurrences = 1) intercept {
         checkout ! DeliverySelected()
       }
