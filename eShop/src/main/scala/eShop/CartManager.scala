@@ -16,17 +16,17 @@ class CartManager(id: String) extends PersistentActor
 
   var remoteCustomer :ActorRef = _
 
-  var cartState = Cart(List())
+  var cartState = Cart(Map())
 
   def updateStateAfterAdding(item: Item): Unit = {
     log.info("In update after adding " + item.name)
-    cartState = cartState.add(item)
+    cartState = cartState.addItem(item)
     saveSnapshot(cartState)
   }
 
   def updateStateAfterRemoving(item: Item): Unit = {
     log.info("In update after removing " + item.name)
-    cartState = cartState.remove(item)
+    cartState = cartState.removeItem(item)
     saveSnapshot(cartState)
   }
 

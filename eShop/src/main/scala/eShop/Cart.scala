@@ -1,20 +1,30 @@
 package eShop
 
+import java.net.URI
+
 case class ItemToAdd(item: Item)
 case class ItemToRemove(item: Item)
 case class RemoveAll()
 
-case class Item(name: String)
+case class Item(id: URI, name: String, price: BigDecimal, count: Int)
 
-case class Cart(state: List[Item]) {
-  def add(item: Item): Cart = copy(item :: state)
-  def remove(item: Item): Cart = copy(state.filter(_ != item))
-  def removeAll(): Cart = copy(List.empty)
-  def print(): String = state.toString()
-  def size(): Int = state.length
-  override def toString: String = state.toString()
+case class Cart(items: Map[URI, Item]) {
+  def addItem(it: Item): Cart = {
+    val currentCount = if (items contains it.id) items(it.id).count else 0
+    copy(items = items.updated(it.id, it.copy(count = currentCount + it.count)))
+  }
+
+  def removeItem(item: Item): Cart = copy(items.filterKeys(_ != item.id))
+
+  def removeAll(): Cart = copy(Map.empty)
+
+  def print(): String = items.toString()
+
+  def size(): Int = items.size
+
+  override def toString: String = items.toString()
 }
 
 object Cart {
-  val empty = Cart(List.empty)
+  val empty = Cart(Map.empty)
 }
