@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorRef, Props, Timers}
 
 import scala.concurrent.duration._
 import scala.collection.mutable.Set
-import eShop._
+import eShopMessages._
 
 case class CartOld(items: Set[String]) extends Actor with Timers {
 

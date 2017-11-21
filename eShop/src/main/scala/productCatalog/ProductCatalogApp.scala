@@ -2,7 +2,7 @@ package productCatalog
 
 import scala.concurrent.duration.Duration
 import akka.actor.{ActorSystem, Props}
-import productCatalog.ProductCatalogMessages.GetItems
+import productCatalog.ProductCatalogMessages.{GetItems, HowManyItems}
 
 import scala.concurrent.Await
 
@@ -12,7 +12,7 @@ object ProductCatalogApp extends App {
   val productCatalogManager = productCatalogSystem.actorOf(Props[ProductCatalogManager],
     "productCatalogManager")
 
-  productCatalogManager ! GetItems("Toaster Muffins Corn")
+  productCatalogManager ! GetItems("Hot Paprika Tin")
 
   Await.result(productCatalogSystem.whenTerminated, Duration.Inf)
 

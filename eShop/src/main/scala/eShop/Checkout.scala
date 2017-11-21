@@ -4,7 +4,7 @@ import akka.actor.{ActorLogging, ActorRef, Props, Timers}
 import akka.persistence.{PersistentActor, SaveSnapshotSuccess, SnapshotOffer}
 
 import scala.concurrent.duration._
-import eShop._
+import eShopMessages._
 
 case class CheckoutState(stateName: String)
 

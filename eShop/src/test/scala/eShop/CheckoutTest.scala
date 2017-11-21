@@ -5,7 +5,7 @@ import akka.testkit.{TestKit, TestProbe}
 import org.scalatest.{BeforeAndAfterAll, WordSpecLike}
 
 import scala.concurrent.duration._
-import eShop._
+import eShopMessages._
 
 class CheckoutTest extends TestKit(ActorSystem("CheckoutTest"))
   with WordSpecLike with BeforeAndAfterAll{

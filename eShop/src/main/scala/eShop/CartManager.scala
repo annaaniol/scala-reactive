@@ -5,7 +5,7 @@ import akka.event.LoggingReceive
 
 import scala.concurrent.duration._
 import akka.persistence._
-import eShop._
+import eShopMessages._
 
 
 class CartManager(id: String) extends PersistentActor

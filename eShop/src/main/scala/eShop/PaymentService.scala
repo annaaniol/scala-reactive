@@ -1,7 +1,7 @@
 package eShop
 
 import akka.actor.{Actor, ActorRef, Timers}
-import eShop._
+import eShopMessages._
 
 class PaymentService(remoteCustomer: ActorRef) extends Actor with Timers {
 
@@ -10,7 +10,7 @@ class PaymentService(remoteCustomer: ActorRef) extends Actor with Timers {
   var remoteCheckout :ActorRef = context.parent
 
   def awaitingPayment: Receive = {
-    case eShop.DoPayment() =>
+    case eShopMessages.DoPayment() =>
       println("PaymentService: Payment done")
       remoteCustomer ! PaymentConfirmed()
       remoteCheckout ! PaymentReceived()

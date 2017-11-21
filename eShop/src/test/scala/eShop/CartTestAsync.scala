@@ -7,7 +7,7 @@ import akka.testkit.{ImplicitSender, TestKit}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
-import eShop._
+import eShopMessages._
 
 class CartTestAsync extends TestKit(ActorSystem("CartTestAsync"))
   with WordSpecLike with BeforeAndAfterAll with ImplicitSender with Matchers {

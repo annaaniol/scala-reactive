@@ -2,7 +2,7 @@ package eShop
 
 import akka.actor.{Actor, ActorRef, Props, Timers}
 import akka.event.Logging
-import eShop._
+import eShopMessages._
 
 class Customer extends Actor with Timers {
   val log = Logging(context.system, this)

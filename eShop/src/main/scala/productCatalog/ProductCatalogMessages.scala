@@ -8,4 +8,8 @@ object ProductCatalogMessages {
 
   }
 
+  case class HowManyItems(name: String) {
+
+  }
+
 }

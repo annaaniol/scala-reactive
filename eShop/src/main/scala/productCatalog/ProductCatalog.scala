@@ -4,7 +4,7 @@ import java.net.URI
 
 import akka.actor.{Actor, ActorLogging}
 import eShop.Item
-import productCatalog.ProductCatalogMessages.GetItems
+import productCatalog.ProductCatalogMessages.{GetItems, HowManyItems}
 
 import scala.collection.mutable
 import scala.io.BufferedSource
@@ -39,12 +39,21 @@ class ProductCatalog extends Actor
 
   override def receive = {
     case GetItems(keyPhrase) => {
-      val itemsList = findMatches(keyPhrase, 10)
-      log.info("Top 10 items:"
-        + itemsList.map(i => {
+      val itemsURIList = findMatches(keyPhrase, 10)
+      log.info("Top 10 items:\n"
+        + itemsURIList.map(i => {
           i._1 + " occurrence(s) - " + items(i._2).name + "\n"
         })
       )
+
+      val itemsList = itemsURIList.map(el => items(el._2))
+      sender ! itemsList
+    }
+
+    case HowManyItems(name) => {
+      sender ! items.map(i => {
+        if (i._2.name.equals(name)) i._2.count else 0
+      }).sum
     }
   }
 

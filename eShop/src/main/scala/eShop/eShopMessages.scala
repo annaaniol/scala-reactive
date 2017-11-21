@@ -2,7 +2,7 @@ package eShop
 
 import akka.actor.ActorRef
 
-object eShop {
+object eShopMessages {
 
   // eShop state management
   case class ShowState() {

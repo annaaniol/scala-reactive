@@ -3,7 +3,7 @@ package eShop
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{EventFilter, TestKit}
 import com.typesafe.config.ConfigFactory
-import eShop._
+import eShopMessages._
 import org.scalatest.{BeforeAndAfterAll, WordSpecLike}
 
 class CheckoutLoggerTest extends TestKit(ActorSystem("CheckoutLoggerTest", ConfigFactory.parseString("""
