@@ -4,12 +4,10 @@ import akka.actor.ActorRef
 
 object eShopMessages {
 
-  // eShop state management
   case class ShowState() {
 
   }
 
-  // eShop v1
   case class ItemRemoved(item: String) {
 
   }
@@ -34,6 +32,9 @@ object eShopMessages {
   case class PaymentSelected() {
 
   }
+  case class PaymentSelectedWithProvider(paymentProvider: String) {
+
+  }
   case class PaymentReceived() {
 
   }
@@ -41,7 +42,6 @@ object eShopMessages {
 
   }
 
-  // eShop v2
   case class DoPayment() {
 
   }

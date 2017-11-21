@@ -48,11 +48,19 @@ class Checkout(id: String) extends PersistentActor
   }
 
   def selectingPaymentMethod: Receive = {
+    case PaymentSelectedWithProvider(paymentProvider) =>
+      timers.cancel(CheckoutTimerKey)
+      timers.startSingleTimer(PaymentTimerKey, PaymentTimeout(), 5.seconds)
+      val paymentServiceActor = context.actorOf(Props(new PaymentService(paymentProvider)), "paymentServiceActor")
+      sender ! PaymentServiceStarted(paymentServiceActor)
+      log.info("Payment method selected")
+      persist("processingPayment")(changeState)
+      context.become(processingPayment)
     case PaymentSelected() =>
       timers.cancel(CheckoutTimerKey)
       timers.startSingleTimer(PaymentTimerKey, PaymentTimeout(), 5.seconds)
-      val paymentServiceActor = context.actorOf(Props(new PaymentService(remoteCustomer)), "paymentServiceActor")
-      remoteCustomer ! PaymentServiceStarted(paymentServiceActor)
+      val paymentServiceActor = context.actorOf(Props(new PaymentService()), "paymentServiceActor")
+      sender ! PaymentServiceStarted(paymentServiceActor)
       log.info("Payment method selected")
       persist("processingPayment")(changeState)
       context.become(processingPayment)

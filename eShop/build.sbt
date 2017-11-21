@@ -12,5 +12,6 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
   "org.iq80.leveldb"            % "leveldb"          % "0.9",
   "org.fusesource.leveldbjni"   % "leveldbjni-all"   % "1.8",
-  "com.github.tototoshi" %% "scala-csv" % "1.3.5"
+  "com.github.tototoshi" %% "scala-csv" % "1.3.5",
+  "com.typesafe.akka" %%  "akka-http" % "10.0.10"
 )

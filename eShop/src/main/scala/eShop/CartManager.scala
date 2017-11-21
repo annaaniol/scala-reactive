@@ -58,7 +58,7 @@ class CartManager(id: String) extends PersistentActor
       printCart()
     case StartCheckout() if cartState.size > 0 =>
       val checkoutActor = context.actorOf(Checkout.props(checkoutPersistenceId), "checkoutActor")
-      remoteCustomer ! CheckoutStarted(checkoutActor)
+      sender ! CheckoutStarted(checkoutActor)
       timers.cancel(CartTimerKey)
     case StartCheckout() if cartState.size <= 0 =>
       log.info("Received StartCheckout message but the cart is empty!")
