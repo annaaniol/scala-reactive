@@ -1,9 +1,11 @@
 package eShop
 
 import akka.actor.{Actor, ActorRef, Props, Timers}
-import eShop._
+import akka.event.Logging
+import eShopMessages._
 
 class Customer extends Actor with Timers {
+  val log = Logging(context.system, this)
 
   var cartActor :ActorRef = null
   var checkoutActor :ActorRef = null
@@ -11,9 +13,9 @@ class Customer extends Actor with Timers {
 
   def receive = {
     case Start() =>
-      cartActor = context.actorOf(Props[Cart], "cartActor")
+      cartActor = context.actorOf(Props[CartOld], "cartActor")
     case CartEmpty() =>
-      println("Customer: Cart is empty")
+      log.info("Customer: Cart is empty")
     case CheckoutStarted(checkout) =>
       checkoutActor = checkout
     case PaymentServiceStarted(paymentService) =>
