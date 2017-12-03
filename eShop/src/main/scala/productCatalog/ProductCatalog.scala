@@ -11,6 +11,7 @@ import scala.io.BufferedSource
 
 class ProductCatalog extends Actor
   with ActorLogging {
+  log.info("ProductCatalog has started!")
 
   var items: Map[URI, Item] = Map.empty
 
@@ -39,6 +40,7 @@ class ProductCatalog extends Actor
 
   override def receive = {
     case GetItems(keyPhrase) => {
+      log.info("ProductCatalog is executing GetItems()")
       val itemsURIList = findMatches(keyPhrase, 10)
       log.info("Top 10 items:\n"
         + itemsURIList.map(i => {

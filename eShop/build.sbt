@@ -4,8 +4,11 @@ version := "1.1"
 
 scalaVersion := "2.12.3"
 
+val akkaV = "2.5.4"
+val scalaTestV = "2.12.3"
+
 libraryDependencies ++= Seq(
-  "com.typesafe.akka" %% "akka-actor" % "2.5.4",
+"com.typesafe.akka" %% "akka-actor" % "2.5.4",
   "com.typesafe.akka" %% "akka-persistence" % "2.5.4",
   "com.typesafe.akka" %% "akka-testkit" % "2.5.4" % "test",
   "com.typesafe.akka" %% "akka-remote" % "2.5.4",
