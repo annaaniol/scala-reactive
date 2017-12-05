@@ -13,9 +13,9 @@ class ProductCatalogRouter extends Actor
   val counter : AtomicInteger = new AtomicInteger()
 
   var router = {
-    val routees = Vector.fill(10) {
+    val routees = Vector.fill(2) {
       val catalogCount = counter.getAndIncrement()
-      val r = context.actorOf(Props[ProductCatalog], name = s"catalog-$catalogCount")
+      val r = context.actorOf(Props[ProductCatalog], name = s"product-catalog-$catalogCount")
       context watch r
       ActorRefRoutee(r)
     }

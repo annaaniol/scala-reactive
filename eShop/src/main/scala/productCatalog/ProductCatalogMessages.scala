@@ -1,6 +1,6 @@
 package productCatalog
 
-import eShop.Item
+import productCatalog.Item
 
 object ProductCatalogMessages {
 

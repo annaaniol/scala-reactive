@@ -25,8 +25,8 @@ object eShopApp extends App {
   val paymentSystem = ActorSystem("payment", config.getConfig("paymentSystem").withFallback(config))
 
   // This App simulates Customer Actor
-  val cartId = "app-cart-id-05"
-  val checkoutId = "app-checkout-id-05"
+  val cartId = "app-cart-id-06"
+  val checkoutId = "app-checkout-id-06"
 
   val cartManager = eShopSystem.actorOf(CartManager.props(cartId))
   //val checkout = eShopSystem.actorOf(Checkout.props(checkoutId))

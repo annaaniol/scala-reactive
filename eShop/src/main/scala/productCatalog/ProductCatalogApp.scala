@@ -2,7 +2,7 @@ package productCatalog
 
 import scala.concurrent.duration.Duration
 import akka.actor.{ActorSystem, Props}
-import eShop.Item
+import productCatalog.Item
 import akka.pattern.ask
 import akka.util.Timeout
 import eShop.eShopMessages._

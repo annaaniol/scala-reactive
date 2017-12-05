@@ -16,5 +16,6 @@ libraryDependencies ++= Seq(
   "org.iq80.leveldb"            % "leveldb"          % "0.9",
   "org.fusesource.leveldbjni"   % "leveldbjni-all"   % "1.8",
   "com.github.tototoshi" %% "scala-csv" % "1.3.5",
-  "com.typesafe.akka" %%  "akka-http" % "10.0.10"
+  "com.typesafe.akka" %%  "akka-http" % "10.0.10",
+  "com.typesafe.play" %% "play-json" % "2.6.7"
 )

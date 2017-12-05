@@ -8,6 +8,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
 import eShopMessages._
+import productCatalog.Item
 
 class CartTestAsync extends TestKit(ActorSystem("CartTestAsync"))
   with WordSpecLike with BeforeAndAfterAll with ImplicitSender with Matchers {

@@ -1,5 +1,6 @@
 package productCatalog
 
+import java.net.URI
 import java.util.concurrent.atomic.AtomicInteger
 
 import akka.actor.{Actor, ActorLogging, Props}
@@ -10,14 +11,17 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import eShop.Item
+import productCatalog.Item
 import akka.pattern.ask
+import play.api.libs.json._
 
 import scala.concurrent.duration._
 import productCatalog.ProductCatalogMessages.{GetItems, HowManyItems}
 
 import scala.concurrent.Await
 import scala.util.matching.Regex
+
+case class Item(id: URI, name: String, price: BigDecimal, count: Int)
 
 class ProductCatalogManager extends Actor
   with ActorLogging{
@@ -32,6 +36,15 @@ class ProductCatalogManager extends Actor
   implicit val executionContext = system.dispatcher
 
   implicit val waitForResponse = Timeout(10 - 1 seconds)
+
+  implicit val uriReads = Reads{ js => js match {
+    case JsString(s) => JsSuccess(java.net.URI.create(s))
+    case _ => JsError("JsString expected to convert to URI")
+  } }
+  implicit val uriWrites = Writes{ uri: java.net.URI => JsString(uri.toString) }
+
+  implicit val itemFormat: OFormat[Item] = Json.format[Item]
+
   val counter : AtomicInteger = new AtomicInteger()
   var catalogRequest: Regex = """"/\w+""".r
 
@@ -41,11 +54,12 @@ class ProductCatalogManager extends Actor
         get {
           log.info("Processing catalog request: " + matched)
 
-          val response = Await.result(productCatalogRouter ? GetItems(matched), 10 seconds).asInstanceOf[List[Item]]
+          val itemList = Await.result(productCatalogRouter ? GetItems(matched), 10 seconds).asInstanceOf[List[Item]]
+          val items = Json.obj("items" -> itemList)
 
           complete{
             HttpEntity(
-              ContentTypes.`application/json`, response.toString
+              ContentTypes.`application/json`, items.toString
             )
           }
         }

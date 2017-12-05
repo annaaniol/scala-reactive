@@ -3,7 +3,7 @@ package productCatalog
 import java.net.URI
 
 import akka.actor.{Actor, ActorLogging}
-import eShop.Item
+import productCatalog.Item
 import productCatalog.ProductCatalogMessages.{GetItems, HowManyItems}
 
 import scala.collection.mutable
@@ -15,7 +15,7 @@ class ProductCatalog extends Actor
 
   var items: Map[URI, Item] = Map.empty
 
-  val bufferedSource: BufferedSource = scala.io.Source.fromFile("src/main/resources/productCatalog/query_result.csv")
+  val bufferedSource: BufferedSource = scala.io.Source.fromResource("productCatalog/query_result.csv")
   val lines: Iterator[String] = bufferedSource.getLines.drop(1)
 
   lines.map(
